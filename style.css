@@ -1,0 +1,559 @@
+/* ==========================================
+   RESET & BASE
+   ========================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #000000;
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.09);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.18);
+  --text-primary: #f0f0f0;
+  --text-secondary: rgba(255, 255, 255, 0.45);
+  --text-muted: rgba(255, 255, 255, 0.25);
+  --accent: #9b87f5;
+  --accent-soft: rgba(155, 135, 245, 0.15);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius: 16px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  background: #000000;
+}
+
+body {
+  background: #000000;
+  color: var(--text-primary);
+  font-family: var(--font);
+  min-height: 100%;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+  /* Fix iOS rubber-band scroll showing background */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ==========================================
+   STARFIELD CANVAS
+   ========================================== */
+#starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Prevent canvas from scrolling on mobile */
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* ==========================================
+   ORB GLOWS (background ambiance)
+   ========================================== */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 1;
+  animation: orb-drift 12s ease-in-out infinite alternate;
+}
+
+.orb-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #9b87f5, transparent 70%);
+  top: -150px;
+  left: -150px;
+  animation-duration: 14s;
+}
+
+.orb-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #6366f1, transparent 70%);
+  bottom: -100px;
+  right: -100px;
+  animation-duration: 11s;
+  animation-delay: -5s;
+}
+
+.orb-3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, #a855f7, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-duration: 16s;
+  animation-delay: -3s;
+  opacity: 0.06;
+}
+
+@keyframes orb-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, 20px) scale(1.08); }
+}
+
+.orb-3 {
+  animation-name: orb-pulse;
+}
+@keyframes orb-pulse {
+  0%   { transform: translate(-50%, -50%) scale(1); opacity: 0.06; }
+  100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.10; }
+}
+
+/* ==========================================
+   MAIN CONTAINER
+   ========================================== */
+.container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 480px;
+  padding: 48px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  animation: page-in 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================
+   PROFILE SECTION
+   ========================================== */
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  overflow: visible;
+}
+
+/* Avatar */
+.avatar-wrapper {
+  position: relative;
+  width: 124px;
+  height: 124px;
+  overflow: visible;
+}
+
+.avatar {
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  object-fit: cover;
+  position: relative;
+  z-index: 2;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  transition: transform var(--transition), border-color var(--transition);
+}
+
+.avatar-wrapper:hover .avatar {
+  transform: scale(1.04);
+  border-color: rgba(155, 135, 245, 0.5);
+}
+
+.avatar-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    #9b87f5 25%,
+    #6366f1 50%,
+    transparent 75%
+  );
+  z-index: 1;
+  opacity: 0;
+  transition: opacity var(--transition);
+  animation: ring-spin 3s linear infinite;
+}
+
+.avatar-wrapper:hover .avatar-ring {
+  opacity: 0.7;
+}
+
+@keyframes ring-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.avatar-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(155, 135, 245, 0.3), transparent 70%);
+  z-index: 0;
+  opacity: 0;
+  transition: opacity var(--transition);
+  filter: blur(10px);
+}
+
+.avatar-wrapper:hover .avatar-glow {
+  opacity: 1;
+}
+
+/* Rose frame overlay */
+.avatar-rose {
+  position: absolute;
+  width: 145%;
+  height: 145%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.6));
+  transition: filter var(--transition);
+}
+
+.avatar-wrapper:hover .avatar-rose {
+  filter: drop-shadow(0 2px 20px rgba(155, 135, 245, 0.4));
+}
+
+
+/* Name */
+.name {
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  line-height: 1.2;
+  margin-top: 18px;
+}
+
+/* Tags */
+.tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 400;
+}
+
+.tag-icon {
+  font-size: 0.9em;
+}
+
+.tag-highlight {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.dot {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+/* Bio clickable link */
+.bio-link {
+  text-decoration: none;
+  color: inherit;
+  transition: color var(--transition);
+}
+
+.bio-link:hover .tag {
+  color: #1ED760;
+  text-shadow: 0 0 14px rgba(30, 215, 96, 0.45);
+}
+
+/* Spotify Embed */
+.spotify-embed {
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  animation: card-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.spotify-embed:hover {
+  border-color: rgba(30, 215, 96, 0.3);
+  box-shadow: 0 4px 28px rgba(30, 215, 96, 0.12);
+}
+
+.spotify-embed iframe {
+  display: block;
+  border-radius: 14px;
+}
+
+/* Bio clickable link */
+.bio-link {
+  text-decoration: none;
+  color: inherit;
+  transition: color var(--transition);
+}
+
+.bio-link:hover .tag {
+  color: #1ED760;
+  text-shadow: 0 0 12px rgba(30, 215, 96, 0.4);
+}
+
+/* ==========================================
+   LINKS SECTION
+   ========================================== */
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.link-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    transform var(--transition),
+    box-shadow var(--transition);
+  cursor: pointer;
+  animation: card-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.link-card:nth-child(1) { animation-delay: 0.15s; }
+.link-card:nth-child(2) { animation-delay: 0.22s; }
+.link-card:nth-child(3) { animation-delay: 0.29s; }
+.link-card:nth-child(4) { animation-delay: 0.36s; }
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Shimmer effect on hover */
+.link-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+
+.link-card:hover::before {
+  transform: translateX(100%);
+}
+
+.link-card:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(155, 135, 245, 0.1);
+}
+
+.link-card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Icon */
+.link-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+  transition: background var(--transition);
+  color: var(--text-primary);
+}
+
+.link-card:hover .link-icon {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Label */
+.link-label {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Arrow */
+.link-arrow {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  transition: transform var(--transition), color var(--transition);
+  opacity: 0;
+}
+
+.link-card:hover .link-arrow {
+  opacity: 1;
+  transform: translateX(2px);
+  color: var(--text-secondary);
+}
+
+/* ==========================================
+   PLATFORM ACCENT COLORS (on hover)
+   ========================================== */
+#link-discord:hover .link-icon { background: rgba(88, 101, 242, 0.2); color: #5865F2; }
+#link-twitter:hover .link-icon { background: rgba(255, 255, 255, 0.1); color: #e5e5e5; }
+#link-instagram:hover .link-icon {
+  background: rgba(225, 48, 108, 0.15);
+  color: #e1306c;
+}
+#link-spotify:hover .link-icon { background: rgba(30, 215, 96, 0.15); color: #1ED760; }
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+.footer {
+  text-align: center;
+  animation: card-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.45s both;
+}
+
+.footer p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+/* Tablet */
+@media (max-width: 600px) {
+  .container {
+    max-width: 100%;
+    padding: 44px 18px 36px;
+    gap: 28px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .container {
+    padding: 36px 14px 32px;
+    gap: 24px;
+  }
+
+  .avatar-wrapper {
+    width: 108px;
+    height: 108px;
+  }
+
+  .avatar {
+    width: 108px;
+    height: 108px;
+  }
+
+  .name {
+    font-size: 1.55rem;
+  }
+
+  .tags {
+    font-size: 0.85rem;
+  }
+
+  .link-card {
+    padding: 16px 18px;
+    gap: 12px;
+    /* Bigger tap target */
+    min-height: 56px;
+  }
+
+  .link-label {
+    font-size: 0.95rem;
+  }
+
+  .link-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  /* Disable parallax tilt on touch */
+  .container {
+    transform: none !important;
+  }
+}
+
+/* Small phones */
+@media (max-width: 360px) {
+  .name {
+    font-size: 1.4rem;
+  }
+
+  .link-card {
+    padding: 14px 16px;
+  }
+}
+
+/* Touch: always show arrow, disable hover-only effects */
+@media (hover: none) {
+  .link-arrow {
+    opacity: 0.5;
+  }
+
+  .link-card:hover {
+    transform: none;
+  }
+
+  .link-card:active {
+    background: var(--surface-hover);
+    transform: scale(0.98);
+  }
+
+  .container {
+    transform: none !important;
+  }
+
+  /* Stop orb drift animation on mobile — prevents background moving when scrolling */
+  .orb {
+    animation: none !important;
+    transform: none !important;
+  }
+}
