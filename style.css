@@ -29,6 +29,8 @@ html {
   -moz-osx-font-smoothing: grayscale;
   height: 100%;
   background: #000000;
+  /* Prevent rubber-band scroll revealing bg */
+  overscroll-behavior: none;
 }
 
 body {
@@ -43,7 +45,7 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
-  /* Fix iOS rubber-band scroll showing background */
+  overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -55,9 +57,18 @@ body {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  /* Prevent canvas from scrolling on mobile */
+  touch-action: none;
   will-change: transform;
   transform: translateZ(0);
+}
+
+/* Fixed black base layer — ensures bg is always black even on bounce scroll */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: #000000;
+  z-index: -1;
 }
 
 /* ==========================================
